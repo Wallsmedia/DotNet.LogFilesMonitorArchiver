@@ -9,9 +9,9 @@
       "ArchivePath": "Archive",
       "MonitoringNames": [ "archive-able_*.xml", "*.csv" ],
       "MoveToArchiveOlderThanDays": 2,
-      "MoveToArchiveAfterReachingFiles": 10,
+      "MoveToArchiveAfterReachingFiles": 20,
       "DeleteFromArchiveOlderThanDays": 5,
-      "DeleteFromArchiveAfterReachingFiles": 15
+      "DeleteFromArchiveAfterReachingFiles": 30
     }
   ]
 }
