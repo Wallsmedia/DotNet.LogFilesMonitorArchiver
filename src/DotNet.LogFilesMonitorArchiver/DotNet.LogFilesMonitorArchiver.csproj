@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net452;netcoreapp1.1</TargetFrameworks>
+    <Authors>Wallsmedia Ltd</Authors>
+    <Company>Wallsmedia Ltd</Company>
+    <Product>Long running monitor which keeps (log) file directories in tidy shape and archive, delete the oldest.</Product>
+    <Description>Removes the server developer headache:
+Long running monitor which keeps (log) file directories in tidy shape and archive, delete the oldest.</Description>
+    <Copyright>2017-* © Wallsmedia LTD. All rights reserved.</Copyright>
+    <PackageLicenseUrl>http://www.apache.org/licenses/LICENSE-2.0</PackageLicenseUrl>
+    <PackageProjectUrl>git://github.com/Wallsmedia/LogFilesArchiver</PackageProjectUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>git://github.com/Wallsmedia/LogFilesArchiver</RepositoryUrl>
+    <PackageReleaseNotes>Release doesn't support of zip archiving</PackageReleaseNotes>
+    <PackageTags>log;archive;</PackageTags>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="1.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="1.1.1" />
+    <PackageReference Include="System.Threading.Tasks.Dataflow" Version="4.7.0" />
+  </ItemGroup>
+</Project>

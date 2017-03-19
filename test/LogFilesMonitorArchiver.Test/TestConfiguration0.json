@@ -1,0 +1,17 @@
+﻿{
+  "AutoTimerIntervalEnabled": "true",
+  "ArchiveOnStartup": "true",
+  "DelayArchiveInSecondsOnstartUp": 1,
+  "AutoTimerArchiveIntervalMin": 1,
+  "ArchiveRules": [
+    {
+      "SourcePath": "Source",
+      "ArchivePath": "Archive",
+      "MonitoringNames": [ "archive-able_*.xml", "*.csv" ],
+      "MoveToArchiveOlderThanDays": 2,
+      "MoveToArchiveAfterReachingFiles": 10,
+      "DeleteFromArchiveOlderThanDays": 5,
+      "DeleteFromArchiveAfterReachingFiles": 15
+    }
+  ]
+}
