@@ -122,12 +122,14 @@ namespace DotNet.LogFilesMonitorArchiver
                 {
                     foreach (var archiveRule in Configuration.ArchiveRules)
                     {
+                        DateTime markerTime = archiveRule.UseUtcTime ? DateTime.UtcNow : DateTime.Now;
                         string inputDirectory = archiveRule.SourcePath;
                         string archiveDirectory = archiveRule.ArchivePath;
                         foreach (var monitoringName in archiveRule.MonitoringNames)
                         {
                             string seachTemplate = monitoringName;
-                            List<Tuple<string, string>> fileTuples = GetFilesOlderThanDays(DateTime.UtcNow, archiveRule.MoveToArchiveOlderThanDays, inputDirectory, seachTemplate);
+
+                            List<Tuple<string, string>> fileTuples = GetFilesOlderThanDays(archiveRule.UseUtcTime, markerTime, archiveRule.MoveToArchiveOlderThanDays, inputDirectory, seachTemplate);
                             MoveFiles(fileTuples, archiveDirectory);
                             fileTuples = GetFilesAboveTheNumber(archiveRule.MoveToArchiveAfterReachingFiles, inputDirectory, seachTemplate);
                             MoveFiles(fileTuples, archiveDirectory);
@@ -138,11 +140,12 @@ namespace DotNet.LogFilesMonitorArchiver
                 {
                     foreach (var archiveRule in Configuration.ArchiveRules)
                     {
+                        DateTime markerTime = archiveRule.UseUtcTime ? DateTime.UtcNow : DateTime.Now;
                         string archiveDirectory = archiveRule.ArchivePath;
                         foreach (var monitoringName in archiveRule.MonitoringNames)
                         {
                             string seachTemplate = monitoringName;
-                            List<Tuple<string, string>> fileTuples = GetFilesOlderThanDays(DateTime.UtcNow, archiveRule.DeleteFromArchiveOlderThanDays, archiveDirectory, seachTemplate);
+                            List<Tuple<string, string>> fileTuples = GetFilesOlderThanDays(archiveRule.UseUtcTime, markerTime, archiveRule.DeleteFromArchiveOlderThanDays, archiveDirectory, seachTemplate);
                             RemoveFiles(fileTuples);
                             fileTuples = GetFilesAboveTheNumber(archiveRule.DeleteFromArchiveAfterReachingFiles, archiveDirectory, seachTemplate);
                             RemoveFiles(fileTuples);
@@ -160,12 +163,13 @@ namespace DotNet.LogFilesMonitorArchiver
         /// <summary>
         /// Returns the list of files that older than exact date.
         /// </summary>
+        /// <param name="useUtcTime">Use UTC time.</param>
         /// <param name="markerTime">The mark time to count from.</param>
         /// <param name="ageInDays">The number of days older than.</param>
         /// <param name="path">The directory to scan.</param>
         /// <param name="searchPattern">The filename template, search pattern.</param>
         /// <returns></returns>
-        List<Tuple<string, string>> GetFilesOlderThanDays(DateTime markerTime, int ageInDays, string path, string searchPattern)
+        List<Tuple<string, string>> GetFilesOlderThanDays(bool useUtcTime, DateTime markerTime, int ageInDays, string path, string searchPattern)
         {
             List<Tuple<string, string>> result = new List<Tuple<string, string>>();
             try
@@ -177,7 +181,8 @@ namespace DotNet.LogFilesMonitorArchiver
                     FileInfo[] files = dirInfo.GetFiles(searchPattern, SearchOption.TopDirectoryOnly);
                     foreach (var file in files)
                     {
-                        if (file.LastWriteTime <= lastestDateTime)
+                        var time = useUtcTime ? file.LastWriteTimeUtc : file.LastWriteTime;
+                        if (time <= lastestDateTime)
                         {
                             result.Add(new Tuple<string, string>(path, file.Name));
                         }

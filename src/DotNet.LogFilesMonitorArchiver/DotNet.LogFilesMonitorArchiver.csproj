@@ -5,15 +5,15 @@
     <Authors>Wallsmedia Ltd</Authors>
     <Company>Wallsmedia Ltd</Company>
     <Product>Long running monitor which keeps (log) file directories in tidy shape and archive, delete the oldest.</Product>
-    <Description>Removes the server developer headache:
-Long running monitor which keeps (log) file directories in tidy shape and archive, delete the oldest.</Description>
+    <Description>Removes the server developer's headache: keeps (log) file directories in tidy shape and archive, delete the oldest.</Description>
     <Copyright>2017-* © Wallsmedia LTD. All rights reserved.</Copyright>
     <PackageLicenseUrl>http://www.apache.org/licenses/LICENSE-2.0</PackageLicenseUrl>
-    <PackageProjectUrl>git://github.com/Wallsmedia/LogFilesArchiver</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/Wallsmedia/DotNet.LogFilesMonitorArchiver</PackageProjectUrl>
     <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>git://github.com/Wallsmedia/LogFilesArchiver</RepositoryUrl>
+    <RepositoryUrl>https://github.com/Wallsmedia/DotNet.LogFilesMonitorArchiver.git</RepositoryUrl>
     <PackageReleaseNotes>Release doesn't support of zip archiving</PackageReleaseNotes>
     <PackageTags>log;archive;</PackageTags>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="1.1.1" />

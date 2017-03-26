@@ -17,6 +17,10 @@ namespace DotNet.LogFilesMonitorArchiver
     public class ArchiveRule
     {
         /// <summary>
+        /// Defines to use UTC time. Default value is true.
+        /// </summary>
+        public bool UseUtcTime { get; set; } = true;
+        /// <summary>
         /// The source monitoring path.
         /// </summary>
         public string SourcePath { get; set; }
