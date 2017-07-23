@@ -1,8 +1,4 @@
-﻿// \\     |/\  /||
-//  \\ \\ |/ \/ ||
-//   \//\\/|  \ || 
-// Copyright © Alexander Paskhin 2013-2017. All rights reserved.
-// Wallsmedia LTD 2015-2017:{Alexander Paskhin}
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Log files monitor and archiver
 
