@@ -75,10 +75,10 @@ namespace DotNet.LogFilesMonitorArchiver
         }
 
         /// <summary>
-        /// 
+        /// Launch the asynchronous task to perform the "Archive" monitoring.
         /// </summary>
         /// <returns>The completion Task.</returns>
-        public Task LunchArchiveFilesAsync()
+        public Task LaunchArchiveFilesAsync()
         {
             if (CancellationToken.IsCancellationRequested)
             {
@@ -90,10 +90,10 @@ namespace DotNet.LogFilesMonitorArchiver
         }
 
         /// <summary>
-        /// 
+        /// Launch the asynchronous task to perform the "Delete" monitoring.
         /// </summary>
         /// <returns>The completion Task.</returns>
-        public Task LunchDeleteFromArchiveFilesAsync()
+        public Task LaunchDeleteFromArchiveFilesAsync()
         {
             if (CancellationToken.IsCancellationRequested)
             {
