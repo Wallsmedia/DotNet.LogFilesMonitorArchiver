@@ -62,7 +62,7 @@ namespace LogFilesMonitorArchiver.Test
             FillTestFiles(config, "archive-able_3{0}.xml", 2, time);
             FillTestFiles(config, "ignored-able_3{0}.xml", 2, time);
 
-            var task = farp.LunchArchiveFilesAsync();
+            var task = farp.LaunchArchiveFilesAsync();
             var res = task.Wait(TimeSpan.FromSeconds(10));
             Assert.IsTrue(res);
             VerifySourceOlderByDate(config, markerTime);
@@ -101,13 +101,13 @@ namespace LogFilesMonitorArchiver.Test
             FillTestFiles(config, "archive-able_5{0}.xml", 2, time);
             FillTestFiles(config, "ignored-able_5{0}.xml", 2, time);
 
-            var task = farp.LunchArchiveFilesAsync();
+            var task = farp.LaunchArchiveFilesAsync();
             var res = task.Wait(TimeSpan.FromSeconds(10));
             Assert.IsTrue(res);
             VerifySourceOlderByDate(config, markerTime);
             VerifyArchiveOlderByDate(config, markerTime);
 
-            task = farp.LunchDeleteFromArchiveFilesAsync();
+            task = farp.LaunchDeleteFromArchiveFilesAsync();
             res = task.Wait(TimeSpan.FromSeconds(10));
             Assert.IsTrue(res);
 
@@ -142,19 +142,19 @@ namespace LogFilesMonitorArchiver.Test
             time = time - TimeSpan.FromDays(1);
             FillTestFiles(config, "archive-able_5{0}.xml", 2, time);
 
-            var task = farp.LunchArchiveFilesAsync();
+            var task = farp.LaunchArchiveFilesAsync();
             var res = task.Wait(TimeSpan.FromSeconds(10));
             Assert.IsTrue(res);
 
             VerifySourceOlderByDate(config, markerTime);
 
 
-            task = farp.LunchDeleteFromArchiveFilesAsync();
+            task = farp.LaunchDeleteFromArchiveFilesAsync();
             res = task.Wait(TimeSpan.FromSeconds(10));
             Assert.IsTrue(res);
 
-            VerifySourceByNumber(config, markerTime);
-            VerifyArchiveByNumber(config, markerTime);
+            VerifySourceByNumber(config);
+            VerifyArchiveByNumber(config);
             VerifySourceDeletedOlderByDate(config, markerTime);
 
         }
@@ -191,8 +191,8 @@ namespace LogFilesMonitorArchiver.Test
             FilesArchiveProcessor farp = new FilesArchiveProcessor(config);
             Thread.Sleep(TimeSpan.FromSeconds(66));
             VerifySourceOlderByDate(config, markerTime);
-            VerifySourceByNumber(config, markerTime);
-            VerifyArchiveByNumber(config, markerTime);
+            VerifySourceByNumber(config);
+            VerifyArchiveByNumber(config);
             VerifySourceDeletedOlderByDate(config, markerTime);
 
         }
@@ -209,7 +209,8 @@ namespace LogFilesMonitorArchiver.Test
                     FileInfo[] files = dirInfo.GetFiles(searchPattern, SearchOption.TopDirectoryOnly);
                     foreach (var file in files)
                     {
-                        Assert.IsTrue(file.LastWriteTime <= lastestDateTime, $"File should not be archived : {file.Name}");
+                        var time = rule.UseUtcTime ? file.LastWriteTimeUtc : file.LastWriteTime;
+                        Assert.IsTrue(time <= lastestDateTime, $"File should not be archived : {file.Name}");
                     }
                 }
             }
@@ -226,7 +227,8 @@ namespace LogFilesMonitorArchiver.Test
                     FileInfo[] files = dirInfo.GetFiles(searchPattern, SearchOption.TopDirectoryOnly);
                     foreach (var file in files)
                     {
-                        Assert.IsTrue(file.LastWriteTime > lastestDateTime, $"File was not archived : {file.Name}");
+                        var time = rule.UseUtcTime ? file.LastWriteTimeUtc : file.LastWriteTime;
+                        Assert.IsTrue(time > lastestDateTime, $"File was not archived : {file.Name}");
                     }
                 }
             }
@@ -243,17 +245,17 @@ namespace LogFilesMonitorArchiver.Test
                     FileInfo[] files = dirInfo.GetFiles(searchPattern, SearchOption.TopDirectoryOnly);
                     foreach (var file in files)
                     {
-                        Assert.IsTrue(file.LastWriteTime > lastestDateTime, $"File was not archived : {file.Name}");
+                        var time = rule.UseUtcTime ? file.LastWriteTimeUtc : file.LastWriteTime;
+                        Assert.IsTrue(time > lastestDateTime, $"File was not archived : {file.Name}");
                     }
                 }
             }
         }
 
-        private static void VerifySourceByNumber(ArchiveProcessorConfig config, DateTime markerTime)
+        private static void VerifySourceByNumber(ArchiveProcessorConfig config)
         {
             foreach (var rule in config.ArchiveRules)
             {
-                DateTime lastestDateTime = markerTime - TimeSpan.FromDays(rule.MoveToArchiveOlderThanDays);
                 var dirInfo = Directory.CreateDirectory(rule.SourcePath);
                 foreach (var searchPattern in rule.MonitoringNames)
                 {
@@ -263,11 +265,10 @@ namespace LogFilesMonitorArchiver.Test
             }
         }
 
-        private static void VerifyArchiveByNumber(ArchiveProcessorConfig config, DateTime markerTime)
+        private static void VerifyArchiveByNumber(ArchiveProcessorConfig config)
         {
             foreach (var rule in config.ArchiveRules)
             {
-                DateTime lastestDateTime = markerTime - TimeSpan.FromDays(rule.MoveToArchiveOlderThanDays);
                 var dirInfo = Directory.CreateDirectory(rule.ArchivePath);
                 foreach (var searchPattern in rule.MonitoringNames)
                 {
@@ -296,7 +297,14 @@ namespace LogFilesMonitorArchiver.Test
                         writer.WriteLine($"Test file {name} : Date {time}");
                     }
                     FileInfo file = new FileInfo(name);
-                    file.LastWriteTime = time;
+                    if (rule.UseUtcTime)
+                    {
+                        file.LastWriteTimeUtc = time;
+                    }
+                    else
+                    {
+                        file.LastWriteTime = time;
+                    }
                 }
             }
         }
