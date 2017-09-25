@@ -4,24 +4,33 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <Authors>.NET Foundation</Authors>
     <Company>.NET Foundation</Company>
-    <Product>Long running monitor which keeps (log) file directories in tidy shape and archive, delete the oldest.</Product>
-    <Description>Removes the developer's headache: keeps (log) file directories in tidy shape and archive, delete the old files by rules.</Description>
+    <Description>Removes the developer's headache: keeps (log) file directories in tidy shape and archive, delete the old files by rules.
+Long running monitor which keeps (log) file directories in tidy shape and archive, delete the oldest.</Description>
     <Copyright>Copyright (c) .NET Foundation. All rights reserved.</Copyright>
     <PackageLicenseUrl>http://www.apache.org/licenses/LICENSE-2.0</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/Wallsmedia/DotNet.LogFilesMonitorArchiver</PackageProjectUrl>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/Wallsmedia/DotNet.LogFilesMonitorArchiver.git</RepositoryUrl>
-    <PackageReleaseNotes>Release  only for netstandard2.0</PackageReleaseNotes>
+    <PackageReleaseNotes>Release  only for netstandard2.0
+Singed assembly</PackageReleaseNotes>
     <PackageTags>log;archive;</PackageTags>
-    <Version>2.0.0</Version>
+    <Version>2.0.1</Version>
+    <AssemblyVersion>2.0.1</AssemblyVersion>
+    <FileVersion>2.0.1</FileVersion>
     <OutputType>Library</OutputType>
   </PropertyGroup>
-  
+
+  <PropertyGroup>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>../../build/Key.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+
   <PropertyGroup Condition="$(Configuration) == 'Release'">
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageOutputPath>../../.nupkgs</PackageOutputPath>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="2.0.0" />
