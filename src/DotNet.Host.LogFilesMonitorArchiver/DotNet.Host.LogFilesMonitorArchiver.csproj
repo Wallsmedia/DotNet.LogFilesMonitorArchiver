@@ -4,8 +4,11 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <Authors>.NET Foundation</Authors>
     <Company>.NET Foundation</Company>
-    <Description>Removes the developer's headache: keeps (log) file directories in tidy shape and archive, delete the old files by rules.
-Long running monitor which keeps (log) file directories in tidy shape and archive, delete the oldest.</Description>
+    <Description>
+      WebHost edition of DotNet.LogFilesMonitorArchiver.
+      Keeps (log) file directories in tidy shape and archive, delete the old files by rules.
+      Long running monitor which keeps (log) file directories in tidy shape and archive, delete the oldest.
+    </Description>
     <Copyright>Copyright (c) .NET Foundation. All rights reserved.</Copyright>
     <PackageLicenseUrl>http://www.apache.org/licenses/LICENSE-2.0</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/Wallsmedia/DotNet.LogFilesMonitorArchiver</PackageProjectUrl>
