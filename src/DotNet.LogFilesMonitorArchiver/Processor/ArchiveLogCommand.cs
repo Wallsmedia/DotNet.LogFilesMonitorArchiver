@@ -63,6 +63,14 @@ namespace DotNet.LogFilesMonitorArchiver
         }
 
         /// <summary>
+        /// Marks the action as canceled.
+        /// </summary>
+        public void MarkCanceled()
+        {
+            _completion.TrySetCanceled();
+        }
+
+        /// <summary>
         /// Marks the action as a complete.
         /// </summary>
         public void MarkException(Exception ex)

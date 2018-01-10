@@ -1,17 +1,19 @@
 ﻿{
-  "AutoTimerIntervalEnabled": "true",
-  "ArchiveOnStartup": "true",
-  "DelayArchiveInSecondsOnstartUp": 1,
-  "AutoTimerArchiveIntervalMin": 1,
-  "ArchiveRules": [
-    {
-      "SourcePath": "Source",
-      "ArchivePath": "Archive",
-      "MonitoringNames": [ "archive-able_*.xml", "*.csv" ],
-      "MoveToArchiveOlderThanDays": 2,
-      "MoveToArchiveAfterReachingFiles": 20,
-      "DeleteFromArchiveOlderThanDays": 5,
-      "DeleteFromArchiveAfterReachingFiles": 30
-    }
-  ]
+  "ArchiveProcessorConfig": {
+    "AutoTimerIntervalEnabled": "true",
+    "ArchiveOnStartup": "true",
+    "DelayArchiveInSecondsOnstartUp": 1,
+    "AutoTimerArchiveIntervalMin": 1,
+    "ArchiveRules": [
+      {
+        "SourcePath": "Source",
+        "ArchivePath": "Archive",
+        "MonitoringNames": [ "archive-able_*.xml", "*.csv" ],
+        "MoveToArchiveOlderThanDays": 2,
+        "MoveToArchiveAfterReachingFiles": 20,
+        "DeleteFromArchiveOlderThanDays": 5,
+        "DeleteFromArchiveAfterReachingFiles": 30
+      }
+    ]
+  }
 }

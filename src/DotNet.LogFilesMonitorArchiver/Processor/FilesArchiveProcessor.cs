@@ -15,8 +15,18 @@ namespace DotNet.LogFilesMonitorArchiver
     /// <summary>
     /// Processor to archive log files by the rules setup in the configuration.
     /// </summary>
-    public class FilesArchiveProcessor
+    public class FilesArchiveProcessor : IDisposable
     {
+        /// <summary>
+        /// The monitor processor mover and archiver.
+        /// </summary>
+        ActionBlock<ArchiveCommand> AchiveProcessor { get; set; }
+
+        /// <summary>
+        /// The interval timer for repeated actions.
+        /// </summary>
+        Timer ProcessorIntervalTimer { get; set; }
+
         /// <summary>
         /// The log file processor configuration <see cref="ArchiveProcessorConfig"/>
         /// </summary>
@@ -25,36 +35,22 @@ namespace DotNet.LogFilesMonitorArchiver
         /// <summary>
         /// The action block cancellation token source.
         /// </summary>
-        CancellationTokenSource CancellationTokenSource { get; } = new CancellationTokenSource();
-
-        CancellationToken CancellationToken { get; }
-
-        CancellationTokenRegistration CancellationTokenRegistration { get; }
+        CancellationTokenSource CancellationTokenSource;
+        CancellationToken CancellationToken;
 
         /// <summary>
-        /// Stops the archive processor.
+        /// Triggered to start the service.
         /// </summary>
-        public void Stop()
+        /// <param name="cancellationToken">Indicates that the start process has been aborted.</param>
+        public Task StartAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            CancellationTokenSource.Cancel();
-        }
-        /// <summary>
-        /// The monitor processor mover and archiver.
-        /// </summary>
-        ActionBlock<ArchiveCommand> AchiveProcessor { get; }
+            if (CancellationTokenSource != null)
+            {
+                throw new InvalidOperationException("Process has been already started");
+            }
 
-        Timer ProcessorIntervalTimer { get; set; }
-
-        /// <summary>
-        /// Constructs the class. It passes the configuration rules to the processor.
-        /// It starts,if it is configured, the background timed monitoring. 
-        /// </summary>
-        /// <param name="configurationRoot">The archive processor configuration and archive rules.</param>
-        public FilesArchiveProcessor(ArchiveProcessorConfig configurationRoot)
-        {
-            Configuration = configurationRoot;
+            CancellationTokenSource = new CancellationTokenSource();
             CancellationToken = CancellationTokenSource.Token;
-            CancellationTokenRegistration = CancellationToken.Register(CancellationRequested);
             // We are not completing the ActionBlock Task with Cancel exception
             AchiveProcessor = new ActionBlock<ArchiveCommand>((Action<ArchiveCommand>)ArchiveProcessorAction);
 
@@ -72,6 +68,47 @@ namespace DotNet.LogFilesMonitorArchiver
                         TimeSpan.FromMinutes(Configuration.AutoTimerArchiveIntervalMin));
                 }
             }
+
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Triggered to perform a graceful shutdown.
+        /// </summary>
+        /// <param name="cancellationToken">Indicates that the shutdown process should no longer be graceful.</param>
+        public Task StopAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (CancellationTokenSource != null)
+            {
+                CancellationTokenSource.Cancel();
+                ProcessorIntervalTimer?.Dispose();
+                AchiveProcessor.Complete();
+                CancellationTokenSource = null;
+                return AchiveProcessor.Completion;
+            }
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Constructs the class. It passes the configuration rules to the processor.
+        /// It starts,if it is configured, the background timed monitoring. 
+        /// </summary>
+        /// <param name="configurationRoot">The archive processor configuration and archive rules.</param>
+        public FilesArchiveProcessor(ArchiveProcessorConfig configurationRoot) : this(configurationRoot, true) { }
+
+        /// <summary>
+        /// Constructs the class. It passes the configuration rules to the processor.
+        /// It starts,if it is configured, the background timed monitoring. 
+        /// </summary>
+        /// <param name="configurationRoot">The archive processor configuration and archive rules.</param>
+        /// <param name="startOnConstruct">For hosted version support.</param>
+        public FilesArchiveProcessor(ArchiveProcessorConfig configurationRoot, bool startOnConstruct)
+        {
+            Configuration = configurationRoot;
+            if (startOnConstruct)
+            {
+                StartAsync(CancellationToken.None);
+            }
         }
 
         /// <summary>
@@ -80,6 +117,11 @@ namespace DotNet.LogFilesMonitorArchiver
         /// <returns>The completion Task.</returns>
         public Task LaunchArchiveFilesAsync()
         {
+            if (CancellationTokenSource == null)
+            {
+                throw new InvalidOperationException("Process has not been started");
+            }
+
             if (CancellationToken.IsCancellationRequested)
             {
                 throw new TaskCanceledException("FilesArchiveProcessor has been stopped.");
@@ -95,6 +137,11 @@ namespace DotNet.LogFilesMonitorArchiver
         /// <returns>The completion Task.</returns>
         public Task LaunchDeleteFromArchiveFilesAsync()
         {
+            if (CancellationTokenSource == null)
+            {
+                throw new InvalidOperationException("Process has not been started");
+            }
+
             if (CancellationToken.IsCancellationRequested)
             {
                 throw new TaskCanceledException("FilesArchiveProcessor has been stopped.");
@@ -112,6 +159,12 @@ namespace DotNet.LogFilesMonitorArchiver
 
         private void ArchiveProcessorAction(ArchiveCommand actionMessage)
         {
+            if (CancellationToken.IsCancellationRequested)
+            {
+                actionMessage.MarkCanceled();
+                return;
+            }
+
             try
             {
                 if (actionMessage.Action == ArchiveCommand.ArchiveAction.MoveToArchive)
@@ -125,7 +178,7 @@ namespace DotNet.LogFilesMonitorArchiver
                         {
                             string seachTemplate = monitoringName;
 
-                            List<Tuple<string, string>> fileTuples = GetFilesOlderThanDays(archiveRule.UseUtcTime, markerTime, archiveRule.MoveToArchiveOlderThanDays, inputDirectory, seachTemplate);
+                            List<(string, string)> fileTuples = GetFilesOlderThanDays(archiveRule.UseUtcTime, markerTime, archiveRule.MoveToArchiveOlderThanDays, inputDirectory, seachTemplate);
                             MoveFiles(fileTuples, archiveDirectory);
                             fileTuples = GetFilesAboveTheNumber(archiveRule.MoveToArchiveAfterReachingFiles, inputDirectory, seachTemplate);
                             MoveFiles(fileTuples, archiveDirectory);
@@ -141,7 +194,7 @@ namespace DotNet.LogFilesMonitorArchiver
                         foreach (var monitoringName in archiveRule.MonitoringNames)
                         {
                             string seachTemplate = monitoringName;
-                            List<Tuple<string, string>> fileTuples = GetFilesOlderThanDays(archiveRule.UseUtcTime, markerTime, archiveRule.DeleteFromArchiveOlderThanDays, archiveDirectory, seachTemplate);
+                            List<(string, string)> fileTuples = GetFilesOlderThanDays(archiveRule.UseUtcTime, markerTime, archiveRule.DeleteFromArchiveOlderThanDays, archiveDirectory, seachTemplate);
                             RemoveFiles(fileTuples);
                             fileTuples = GetFilesAboveTheNumber(archiveRule.DeleteFromArchiveAfterReachingFiles, archiveDirectory, seachTemplate);
                             RemoveFiles(fileTuples);
@@ -165,9 +218,9 @@ namespace DotNet.LogFilesMonitorArchiver
         /// <param name="path">The directory to scan.</param>
         /// <param name="searchPattern">The filename template, search pattern.</param>
         /// <returns></returns>
-        List<Tuple<string, string>> GetFilesOlderThanDays(bool useUtcTime, DateTime markerTime, int ageInDays, string path, string searchPattern)
+        List<(string, string)> GetFilesOlderThanDays(bool useUtcTime, DateTime markerTime, int ageInDays, string path, string searchPattern)
         {
-            List<Tuple<string, string>> result = new List<Tuple<string, string>>();
+            List<(string, string)> result = new List<(string, string)>();
             try
             {
                 DateTime lastestDateTime = markerTime - TimeSpan.FromDays(ageInDays);
@@ -180,7 +233,7 @@ namespace DotNet.LogFilesMonitorArchiver
                         var time = useUtcTime ? file.LastWriteTimeUtc : file.LastWriteTime;
                         if (time <= lastestDateTime)
                         {
-                            result.Add(new Tuple<string, string>(path, file.Name));
+                            result.Add((path, file.Name));
                         }
                     }
                 }
@@ -189,7 +242,6 @@ namespace DotNet.LogFilesMonitorArchiver
             return result;
         }
 
-
         /// <summary>
         /// Returns the list of files which is sequence number is greater than maxTotal.
         /// </summary>
@@ -197,9 +249,9 @@ namespace DotNet.LogFilesMonitorArchiver
         /// <param name="path">The directory to scan.</param>
         /// <param name="searchPattern">The filename template, search pattern.</param>
         /// <returns></returns>
-        List<Tuple<string, string>> GetFilesAboveTheNumber(int maxTotal, string path, string searchPattern)
+        List<(string, string)> GetFilesAboveTheNumber(int maxTotal, string path, string searchPattern)
         {
-            List<Tuple<string, string>> result = new List<Tuple<string, string>>();
+            List<(string, string)> result = new List<(string, string)>();
             try
             {
                 if (Directory.Exists(path))
@@ -209,7 +261,7 @@ namespace DotNet.LogFilesMonitorArchiver
                     files = files.OrderByDescending(file => file.LastWriteTime).ToArray();
                     for (int i = maxTotal; i < files.Length; i++)
                     {
-                        result.Add(new Tuple<string, string>(path, files[i].Name));
+                        result.Add((path, files[i].Name));
                     }
                 }
             }
@@ -218,10 +270,10 @@ namespace DotNet.LogFilesMonitorArchiver
         }
 
         /// <summary>
-        /// 
+        /// Removes the files by the tuple list.
         /// </summary>
-        /// <param name="filesToRemove"></param>
-        void RemoveFiles(List<Tuple<string, string>> filesToRemove)
+        /// <param name="filesToRemove">The list files to remove.</param>
+        void RemoveFiles(List<(string, string)> filesToRemove)
         {
             foreach (var tfile in filesToRemove)
             {
@@ -236,9 +288,9 @@ namespace DotNet.LogFilesMonitorArchiver
         /// <summary>
         /// Moves files in the source list to the destination folder.
         /// </summary>
-        /// <param name="filesToMove"></param>
-        /// <param name="destinatioPath"></param>
-        void MoveFiles(List<Tuple<string, string>> filesToMove, string destinatioPath)
+        /// <param name="filesToMove">The list of files to move.</param>
+        /// <param name="destinatioPath">The destination path.</param>
+        void MoveFiles(List<(string, string)> filesToMove, string destinatioPath)
         {
             try
             {
@@ -272,12 +324,6 @@ namespace DotNet.LogFilesMonitorArchiver
             catch { }
         }
 
-        protected void CancellationRequested()
-        {
-            ProcessorIntervalTimer.Dispose();
-            AchiveProcessor.Complete();
-        }
-
         void CreateDirectory(string directoryPath)
         {
             if (!Directory.Exists(directoryPath))
@@ -285,6 +331,40 @@ namespace DotNet.LogFilesMonitorArchiver
                 Directory.CreateDirectory(directoryPath);
             }
         }
+
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting
+        /// unmanaged resources.
+        /// </summary>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if ((CancellationTokenSource != null) && (disposing))
+                {
+                    // dispose managed state (managed objects).
+                    CancellationTokenSource.Cancel();
+                    ProcessorIntervalTimer?.Dispose();
+                    AchiveProcessor.Complete();
+                    CancellationTokenSource = null;
+                }
+                disposedValue = true;
+            }
+        }
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting
+        /// unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        #endregion
 
     }
 }

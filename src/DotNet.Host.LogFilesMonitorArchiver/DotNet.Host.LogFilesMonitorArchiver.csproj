@@ -12,7 +12,7 @@ Long running monitor which keeps (log) file directories in tidy shape and archiv
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/Wallsmedia/DotNet.LogFilesMonitorArchiver.git</RepositoryUrl>
     <PackageReleaseNotes>Release  only for netstandard2.0. Singed assembly. StartAsync and StopAsync.</PackageReleaseNotes>
-    <PackageTags>log;archive;</PackageTags>
+    <PackageTags>log;archive;host;</PackageTags>
     <Version>2.1.0</Version>
     <AssemblyVersion>2.1.0</AssemblyVersion>
     <FileVersion>2.1.0</FileVersion>
@@ -33,6 +33,11 @@ Long running monitor which keeps (log) file directories in tidy shape and archiv
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="2.0.0" />
-    <PackageReference Include="System.Threading.Tasks.Dataflow" Version="4.8.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="2.0.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DotNet.LogFilesMonitorArchiver\DotNet.LogFilesMonitorArchiver.csproj" />
   </ItemGroup>
 </Project>
