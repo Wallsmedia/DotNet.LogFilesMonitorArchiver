@@ -208,6 +208,22 @@ services.AddLogFilesMonitorArchiver();
 }
 
 ```
+or 
+When configuring services add the following initialization code into when you want to set a configuration section name :
+
+``` c#
+
+public  ... ConfigureServices(IServiceCollection services)
+{
+...
+
+services.AddLogFilesMonitorArchiver("SectionOfArchiveProcessorConfig");
+
+...
+
+}
+
+```
 ### Host Automatic mode
 
 For automatic mode you have to ensure that in configuration has been setup:

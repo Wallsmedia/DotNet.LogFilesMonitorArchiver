@@ -13,11 +13,12 @@ namespace DotNet.Host.LogFilesMonitorArchiver
     /// </summary>
     public class ArchiveProcessorConfigWrapper : ArchiveProcessorConfig
     {
-        
+        private string ConfigurationSection { get; set; } = nameof(ArchiveProcessorConfig);
+
         /// <summary>
         /// Constructs configuration wrapper.
         /// </summary>
-        /// <param name="configuration"></param>
+        /// <param name="configuration">The instance of the configuration <see cref="IConfiguration"/></param>
         public ArchiveProcessorConfigWrapper(IConfiguration configuration)
         {
             LoadFromConfigiration(configuration);
@@ -25,11 +26,24 @@ namespace DotNet.Host.LogFilesMonitorArchiver
             ChangeToken?.RegisterChangeCallback((a) => LoadFromConfigiration(configuration), null);
         }
 
+        /// <summary>
+        /// Constructs configuration wrapper.
+        /// </summary>
+        /// <param name="configurationSection">The configuration Section name.</param>
+        /// <param name="configuration">The instance of the configuration <see cref="IConfiguration"/></param>
+        public ArchiveProcessorConfigWrapper(IConfiguration configuration,string configurationSection):this(configuration)
+        {
+            ConfigurationSection = configurationSection;
+        }
+
+        /// <summary>
+        /// The configuration change subscription token.
+        /// </summary>
         public IChangeToken ChangeToken { get; }
 
         void LoadFromConfigiration(IConfiguration configuration)
         {
-            configuration.Bind(nameof(ArchiveProcessorConfig), this);
+            configuration.Bind(ConfigurationSection, this);
         }
 
     }
