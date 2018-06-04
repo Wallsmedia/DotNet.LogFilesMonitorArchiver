@@ -35,8 +35,8 @@ Here is example of the JSON configuration file that can be use to define configu
  "ArchiveProcessorConfig": {
    "AutoTimerIntervalEnabled": "true",
    "ArchiveOnStartup": "true",
-   "DelayArchiveInSecondsOnstartUp": 1, //  1 min
-   "AutoTimerArchiveIntervalMin": 720,  // 12 hours
+   "DelayArchiveInSecondsOnstartUp": 1, 
+   "AutoTimerArchiveIntervalMin": 720,
    "ArchiveRules": [
     {
       "SourcePath": "\\Logs\\AppExampleLogSource\\Stat",
@@ -151,12 +151,12 @@ Create separate configuration file or add to existing **appsettings.config** the
 Example of the configuration section:
 ``` json
 {
-...
+
  "ArchiveProcessorConfig": {
    "AutoTimerIntervalEnabled": "true",
    "ArchiveOnStartup": "true",
-   "DelayArchiveInSecondsOnstartUp": 1, //  1 min
-   "AutoTimerArchiveIntervalMin": 720,  // 12 hours
+   "DelayArchiveInSecondsOnstartUp": 1, 
+   "AutoTimerArchiveIntervalMin": 720,
    "ArchiveRules": [
     {
       "SourcePath": "\\Logs\\AppExampleLogSource\\Stat",
@@ -177,7 +177,7 @@ Example of the configuration section:
     }
   ]
  }
- ...
+
 }
 ```
 
