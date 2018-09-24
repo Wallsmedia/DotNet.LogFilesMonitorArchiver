@@ -1,16 +1,21 @@
-### Built-in into the Application Auto log files monitoring and archiver background processor 
+### .NET Core Logging Files Monitor and Archiver
+Long running services can generate lots of logging and temporary files. 
+They become outdated and should be deleted by the dedicated period of time, like 180 days. 
+".NET Core Logging Files Monitor and Archiver" provides convenient and flexible features for log files archiving and removing. 
 
-For console applications and standalone services:
+".NET Core Logging Files Monitor and Archiver" is a long running monitor which scans file directories, archives them and deletes the old.
+It keeps file directories in tidy state by the rules.
+
+
+**CLI Application edition of ".NET Core Logging Files Monitor and Archiver":**
 https://www.nuget.org/packages/DotNet.LogFilesMonitorArchiver/
 
-For Net Core Web Host and Host services:
+**ASP.NET Core WebHost and Host edition of ".NET Core Logging Files Monitor and Archiver":**
 https://www.nuget.org/packages/DotNet.Host.LogFilesMonitorArchiver/
 
-Long running services generates lots of log files. 
-They become outdated and should be deleted by the dedicated period of time, like 180 days. 
-Unfortunately, It is hard to find the logger framework that provides convenient and flexible features for log files archiving and removing. 
 
-## Archive scenarious
+
+## Archive scenarios
 
 The "DotNet.LogFilesMonitorArchiver" package allows to implement  the following archive scenarios:
 
