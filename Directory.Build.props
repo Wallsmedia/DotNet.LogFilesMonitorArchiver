@@ -7,7 +7,7 @@
     <Product>Dot NET Core Extensions for archiving and cleanup logging and temp directories.</Product>
     <Authors>Alexander Paskhin, Wallsmedia L.T.D.</Authors>
     <Company>.NET Foundation</Company>
-    <Copyright>Copyright (c) .NET Foundation. All rights reserved.</Copyright>
+    <Copyright>Copyright (c) $([System.DateTime]::Now.ToString('yyyy')) .NET Foundation. All rights reserved.</Copyright>
     <PackageLicenseUrl>http://www.apache.org/licenses/LICENSE-2.0</PackageLicenseUrl>
     <CommonDescription>
       It is a long running monitor which scans file directories, archives them and deletes the old.

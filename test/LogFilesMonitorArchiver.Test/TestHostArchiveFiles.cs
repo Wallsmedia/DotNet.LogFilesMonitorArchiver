@@ -13,6 +13,7 @@ using System.IO;
 using System.Threading;
 using DotNet.Host.LogFilesMonitorArchiver.DependencyInjection;
 using DotNet.LogFilesMonitorArchiver;
+using System.Linq;
 
 namespace LogFilesMonitorArchiver.Test
 {
@@ -52,7 +53,7 @@ namespace LogFilesMonitorArchiver.Test
             var _hostedServices = Services.GetService<IEnumerable<IHostedService>>();
 
             // Setup proper test configuration 
-            ArchiveProcessorConfig config = Services.GetService<ArchiveProcessorConfig>();
+            ArchiveProcessorConfig config = ((FilesArchiveProcessor)_hostedServices.First()).Configuration;
             config.AutoTimerIntervalEnabled = true;
             config.DelayArchiveInSecondsOnstartUp = 1;
             config.AutoTimerArchiveIntervalMin = 1000;
