@@ -20,7 +20,7 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../../build/Key.snk</AssemblyOriginatorKeyFile>
     <PackageLicenseUrl />
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="$(Configuration) == 'Release'">
@@ -35,7 +35,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\..\..\XmlResult\Mvc.Formatters.Xml.Extensions\LICENSE">
+    <None Include="..\..\LICENSE.txt">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+    <None Include="..\..\LICENSE.txt">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
