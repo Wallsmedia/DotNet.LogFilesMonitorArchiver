@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
     <Description>
       ASP.NET Core WebHost and Host edition of ".NET Core Logging Files Monitor and Archiver".$(CommonDescription)
     </Description>
@@ -10,10 +10,10 @@
     <RepositoryUrl>https://github.com/Wallsmedia/DotNet.LogFilesMonitorArchiver.git</RepositoryUrl>
 
     <PackageReleaseNotes>
-      Released only for netstandard2.0.
+      Released only for netcoreapp3.0
       Singed assembly.
       Implements StartAsync and StopAsync via Microsoft.Extensions.Hosting.IHostedService.
-</PackageReleaseNotes>
+    </PackageReleaseNotes>
     <PackageTags>log;archive;host;monitor;</PackageTags>
 
     <OutputType>Library</OutputType>
@@ -34,10 +34,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.0.0-*" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="3.0.0-*" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="3.0.0-*" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.0.0-*" />
   </ItemGroup>
 
   <ItemGroup>
