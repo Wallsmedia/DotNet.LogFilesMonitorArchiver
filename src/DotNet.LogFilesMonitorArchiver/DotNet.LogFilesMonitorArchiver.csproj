@@ -1,7 +1,7 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
 
     <Description>
       CLI Application edition of ".NET Core Logging Files Monitor and Archiver".$(CommonDescription)
@@ -10,7 +10,7 @@
     <PackageProjectUrl>https://github.com/Wallsmedia/DotNet.LogFilesMonitorArchiver</PackageProjectUrl>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/Wallsmedia/DotNet.LogFilesMonitorArchiver.git</RepositoryUrl>
-    <PackageReleaseNotes>Released  only for netstandard2.0. Singed assembly.</PackageReleaseNotes>
+    <PackageReleaseNotes>Released  only for netstandard2.1. Singed assembly.</PackageReleaseNotes>
     <PackageTags>log;archive;monitor;</PackageTags>
     <OutputType>Library</OutputType>
   </PropertyGroup>
@@ -27,17 +27,15 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageOutputPath>../../.nupkgs</PackageOutputPath>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="2.2.0" />
-    <PackageReference Include="System.Threading.Tasks.Dataflow" Version="4.9.0" />
-  </ItemGroup>
-
+ 
   <ItemGroup>
     <None Include="..\..\LICENSE.txt">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
+  </ItemGroup>
+ 
+  <ItemGroup>
+    <PackageReference Include="System.Threading.Tasks.Dataflow" Version="4.10.0" />
   </ItemGroup>
 </Project>
