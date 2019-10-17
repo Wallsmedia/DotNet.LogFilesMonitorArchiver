@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
 
     <Description>
       CLI Application edition of ".NET Core Logging Files Monitor and Archiver".$(CommonDescription)
@@ -34,8 +34,5 @@
       <PackagePath></PackagePath>
     </None>
   </ItemGroup>
- 
-  <ItemGroup>
-    <PackageReference Include="System.Threading.Tasks.Dataflow" Version="4.10.0" />
-  </ItemGroup>
+  
 </Project>

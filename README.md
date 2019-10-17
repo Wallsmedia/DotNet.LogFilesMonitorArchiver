@@ -6,6 +6,11 @@ They become outdated and should be deleted by the dedicated period of time, like
 ".NET Core Logging Files Monitor and Archiver" is a long running monitor which scans file directories, archives them and deletes the old.
 It keeps file directories in tidy state by the rules.
 
+
+#### Version 3.0.0
+- Add support of .Net Core 3.0
+
+
 ### Development Supported by JetBrains Open Source Program:
 
 <a href="https://www.jetbrains.com/?from=XmlResult"> <img src="https://github.com/Wallsmedia/XmlResult/blob/master/Logo/rider/logo.png?raw=true" Width="40p" /></a> **Fast & powerful,
