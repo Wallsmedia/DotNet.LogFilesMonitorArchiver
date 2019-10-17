@@ -113,6 +113,10 @@ For automatic mode you have to ensure that in configuration has been setup:
 static FilesArchiveProcessor _filesArchiveProcessor;
 ...
 ArchiveProcessorConfig config = LoadConfiguration("FilesArchiveProcessor.json");
+
+// Ensure that Auto Timer Interval has been enabled
+config.AutoTimerIntervalEnabled = true;
+
 _filesArchiveProcessor = new FilesArchiveProcessor(config);
 ...
 
@@ -128,6 +132,10 @@ For automatic mode you have to ensure that in configuration has been setup:
 static FilesArchiveProcessor _filesArchiveProcessor;
 ...
 ArchiveProcessorConfig config = LoadConfiguration("FilesArchiveProcessor.json");
+
+// Ensure that Auto Timer Interval has been enabled
+config.AutoTimerIntervalEnabled = true;
+
 _filesArchiveProcessor = new FilesArchiveProcessor(config,false);
 ...
 
@@ -198,17 +206,6 @@ Example of the configuration section:
 }
 ```
 
-Ensure that configuration section will be part of the of DI singleton "IConfiguration" (.net core 2.0+).
-
-``` c#
-.UseStartup<Startup>()
-.ConfigureAppConfiguration((webHostBuilderContext, configurationBuilder) =>
-  {
-    configurationBuilder.SetBasePath(webHostBuilderContext.HostingEnvironment.ContentRootPath);
-    configurationBuilder.AddJsonFile("appsettings.json", optional: false);
-  })
-.Build();
-```
 
 When configuring services add the following initialization code into:
 
