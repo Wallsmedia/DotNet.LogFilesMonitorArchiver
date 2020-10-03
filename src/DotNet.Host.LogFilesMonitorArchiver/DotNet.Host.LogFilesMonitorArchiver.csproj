@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>$(DotNetCoreAppVersion)</TargetFramework>
     <Description>
       ASP.NET Core WebHost and Host edition of ".NET Core Logging Files Monitor and Archiver".$(CommonDescription)
     </Description>
@@ -10,7 +10,7 @@
     <RepositoryUrl>https://github.com/Wallsmedia/DotNet.LogFilesMonitorArchiver.git</RepositoryUrl>
 
     <PackageReleaseNotes>
-      Released only for netcoreapp3.0
+      Released only for $(DotNetCoreAppVersion)
       Singed assembly.
       Implements StartAsync and StopAsync via Microsoft.Extensions.Hosting.IHostedService.
     </PackageReleaseNotes>

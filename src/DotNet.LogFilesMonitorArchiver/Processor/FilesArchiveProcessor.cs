@@ -8,7 +8,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Threading.Tasks.Dataflow;
 
 namespace DotNet.LogFilesMonitorArchiver
 {
@@ -17,10 +16,6 @@ namespace DotNet.LogFilesMonitorArchiver
     /// </summary>
     public class FilesArchiveProcessor : IDisposable
     {
-        /// <summary>
-        /// The monitor processor mover and archiver.
-        /// </summary>
-        ActionBlock<ArchiveCommand> AchiveProcessor { get; set; }
 
         /// <summary>
         /// The interval timer for repeated actions.
@@ -52,7 +47,6 @@ namespace DotNet.LogFilesMonitorArchiver
             CancellationTokenSource = new CancellationTokenSource();
             CancellationToken = CancellationTokenSource.Token;
             // We are not completing the ActionBlock Task with Cancel exception
-            AchiveProcessor = new ActionBlock<ArchiveCommand>((Action<ArchiveCommand>)ArchiveProcessorAction);
 
             if (Configuration.AutoTimerIntervalEnabled)
             {
@@ -82,9 +76,7 @@ namespace DotNet.LogFilesMonitorArchiver
             {
                 CancellationTokenSource.Cancel();
                 ProcessorIntervalTimer?.Dispose();
-                AchiveProcessor.Complete();
                 CancellationTokenSource = null;
-                return AchiveProcessor.Completion;
             }
             return Task.CompletedTask;
         }
@@ -127,7 +119,7 @@ namespace DotNet.LogFilesMonitorArchiver
                 throw new TaskCanceledException("FilesArchiveProcessor has been stopped.");
             }
             var cmd = ArchiveCommand.MoveToArchive;
-            AchiveProcessor.Post(cmd);
+            Task.Run(() => ArchiveProcessorAction(cmd));
             return cmd.Complete;
         }
 
@@ -147,14 +139,14 @@ namespace DotNet.LogFilesMonitorArchiver
                 throw new TaskCanceledException("FilesArchiveProcessor has been stopped.");
             }
             var cmd = ArchiveCommand.DeleteFromArchive;
-            AchiveProcessor.Post(cmd);
+            Task.Run(() => ArchiveProcessorAction(cmd));
             return cmd.Complete;
         }
 
         private void ProcessLogTimerCallback(object state)
         {
-            AchiveProcessor.Post(ArchiveCommand.MoveToArchive);
-            AchiveProcessor.Post(ArchiveCommand.DeleteFromArchive);
+            ArchiveProcessorAction(ArchiveCommand.MoveToArchive);
+            ArchiveProcessorAction(ArchiveCommand.DeleteFromArchive);
         }
 
         private void ArchiveProcessorAction(ArchiveCommand actionMessage)
@@ -348,7 +340,6 @@ namespace DotNet.LogFilesMonitorArchiver
                     // dispose managed state (managed objects).
                     CancellationTokenSource.Cancel();
                     ProcessorIntervalTimer?.Dispose();
-                    AchiveProcessor.Complete();
                     CancellationTokenSource = null;
                 }
                 disposedValue = true;

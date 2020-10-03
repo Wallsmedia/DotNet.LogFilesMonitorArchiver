@@ -19,7 +19,8 @@
 
 
   <PropertyGroup>
-    <DotNetCoreAppVersion>3.0.0-*</DotNetCoreAppVersion>
-    <AspNetCoreVersion>3.0.0-*</AspNetCoreVersion>
+    <DotNetCoreAppVersion>netcoreapp3.1</DotNetCoreAppVersion>
+    <DotNetCoreVersion>netstandard2.1</DotNetCoreVersion>
+  
   </PropertyGroup>
 </Project>
