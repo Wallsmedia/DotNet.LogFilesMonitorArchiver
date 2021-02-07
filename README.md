@@ -7,6 +7,9 @@ They become outdated and should be deleted by the dedicated period of time, like
 It keeps file directories in tidy state by the rules.
 
 
+#### Version 5.0.0
+- Add support of .Net 5.x and netstandard 2.1
+
 #### Version 3.1.0
 - Add support of .Net Core 3.1.x and netstandard 2.1
 

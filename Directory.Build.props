@@ -1,5 +1,4 @@
 ﻿<Project>
-
   <Import Project="version.props"/>
 
   <PropertyGroup>
@@ -17,10 +16,9 @@
 
   </PropertyGroup>
 
-
   <PropertyGroup>
-    <DotNetCoreAppVersion>netcoreapp3.1</DotNetCoreAppVersion>
+    <DotNetCoreAppVersion>net5.0</DotNetCoreAppVersion>
     <DotNetCoreVersion>netstandard2.1</DotNetCoreVersion>
-  
   </PropertyGroup>
+  
 </Project>
