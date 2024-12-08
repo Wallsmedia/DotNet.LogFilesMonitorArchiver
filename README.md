@@ -7,17 +7,9 @@ They become outdated and should be deleted by the dedicated period of time, like
 It keeps file directories in tidy state by the rules.
 
 
-#### Version 6.0.0
-- Add support of .Net 6.x and netstandard 2.1
+#### Version 8.0.0
+- Add support of .Net 8.x and netstandard 2.0/2.1
 
-#### Version 5.0.0
-- Add support of .Net 5.x and netstandard 2.1
-
-#### Version 3.1.0
-- Add support of .Net Core 3.1.x and netstandard 2.1
-
-#### Version 3.0.0
-- Add support of .Net Core 3.0
 
 **CLI Application edition of ".NET Core Logging Files Monitor and Archiver":**
 https://www.nuget.org/packages/DotNet.LogFilesMonitorArchiver/
