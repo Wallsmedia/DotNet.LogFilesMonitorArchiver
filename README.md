@@ -14,7 +14,6 @@ It keeps file directories in tidy state by the rules.
 https://www.nuget.org/packages/DotNet.Host.LogFilesMonitorArchiver/
 
 
-
 ## Archive scenarios
 
 The "DotNet.LogFilesMonitorArchiver" package allows to implement  the following archive scenarios:
@@ -74,8 +73,13 @@ When configuring services add the following initialization code into:
 
 ``` CSHARP
 
-services.AddLogFilesMonitorArchiver();
+var builder = WebApplication.CreateBuilder(args);
 
+....
+
+builder.Services.AddLogFilesMonitorArchiver();
+
+builder.Services.AddLogFilesMonitorArchiverConfiguration(builder.Configuration);
 
 ```
 

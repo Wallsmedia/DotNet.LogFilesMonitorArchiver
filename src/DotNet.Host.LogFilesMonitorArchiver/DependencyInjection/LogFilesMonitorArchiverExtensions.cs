@@ -16,7 +16,7 @@ public static class LogFilesMonitorArchiverExtensions
     /// <summary>
     /// Adds the Log Files Monitor Archiver to <see cref="ServiceCollection"/>.
     /// </summary>
-    /// <param name="services"></param>
+    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     public static void AddLogFilesMonitorArchiver(this IServiceCollection services)
     {
         services.AddHostedService<FilesArchiveHostedService>();
@@ -25,10 +25,12 @@ public static class LogFilesMonitorArchiverExtensions
     /// <summary>
     /// Adds the Log Files Monitor Archiver Configuration to <see cref="ServiceCollection"/>.
     /// </summary>
-    /// <param name="services"></param>
-    public static void AddLogFilesMonitorArchiverConfiguration(this IServiceCollection services,IConfiguration configuration)
+    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    /// <param name="sectionName">The configuration sub-section with the specified key.</param>
+    public static void AddLogFilesMonitorArchiverConfiguration(this IServiceCollection services, IConfiguration configuration, string sectionName = nameof(ArchiveProcessorConfig))
     {
-        ArchiveProcessorConfig archiveProcessorConfig = configuration.GetSection(nameof(ArchiveProcessorConfig)).Get<ArchiveProcessorConfig>();
+        ArchiveProcessorConfig archiveProcessorConfig = configuration.GetSection(sectionName).Get<ArchiveProcessorConfig>();
         services.AddSingleton(archiveProcessorConfig);
     }
 
