@@ -1,52 +1,35 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
-using DotNet.LogFilesMonitorArchiver;
+using DotNet.Host.LogFilesMonitorArchiver.Config;
+using DotNet.Host.LogFilesMonitorArchiver.Processor;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Hosting;
 
-namespace DotNet.Host.LogFilesMonitorArchiver.DependencyInjection
+namespace Microsoft.Extensions.DependencyInjection;
+
+/// <summary>
+/// Extension methods for the Log Files Monitor Archiver to <see cref="ServiceCollection"/>.
+/// </summary>
+public static class LogFilesMonitorArchiverExtensions
 {
+
     /// <summary>
-    /// Extension methods for the Log Files Monitor Archiver to <see cref="ServiceCollection"/>.
+    /// Adds the Log Files Monitor Archiver to <see cref="ServiceCollection"/>.
     /// </summary>
-    public static class LogFilesMonitorArchiverExtensions
+    /// <param name="services"></param>
+    public static void AddLogFilesMonitorArchiver(this IServiceCollection services)
     {
-
-        /// <summary>
-        /// Adds the Log Files Monitor Archiver to <see cref="ServiceCollection"/>.
-        /// </summary>
-        /// <param name="services"></param>
-        public static void AddLogFilesMonitorArchiver(this IServiceCollection services)
-        {
-            services.TryAddEnumerable(ServiceDescriptor.Singleton<IHostedService, FilesArchiveHostedService>(
-                (p) =>
-                {
-                    var c = p.GetService<IConfiguration>();
-                    var a = new ArchiveProcessorConfigWrapper(c);
-                    return new FilesArchiveHostedService(a);
-                }
-                ));
-        }
-
-        /// <summary>
-        /// Adds the Log Files Monitor Archiver to <see cref="ServiceCollection"/>.
-        /// </summary>
-        /// <param name="services"></param>
-        /// <param name="configurationSection">The configuration section name.</param>
-        public static void AddLogFilesMonitorArchiver(this IServiceCollection services, string configurationSection)
-        {
-            services.TryAddEnumerable(ServiceDescriptor.Singleton<IHostedService, FilesArchiveHostedService>(
-                (p) =>
-                {
-                    var c = p.GetService<IConfiguration>();
-                    var a = new ArchiveProcessorConfigWrapper(c, configurationSection);
-                    return new FilesArchiveHostedService(a);
-                }
-                ));
-        }
+        services.AddHostedService<FilesArchiveHostedService>();
     }
+
+    /// <summary>
+    /// Adds the Log Files Monitor Archiver Configuration to <see cref="ServiceCollection"/>.
+    /// </summary>
+    /// <param name="services"></param>
+    public static void AddLogFilesMonitorArchiverConfiguration(this IServiceCollection services,IConfiguration configuration)
+    {
+        ArchiveProcessorConfig archiveProcessorConfig = configuration.GetSection(nameof(ArchiveProcessorConfig)).Get<ArchiveProcessorConfig>();
+        services.AddSingleton(archiveProcessorConfig);
+    }
+
 }

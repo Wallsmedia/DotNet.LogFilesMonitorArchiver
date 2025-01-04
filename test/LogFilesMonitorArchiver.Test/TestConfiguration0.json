@@ -1,6 +1,5 @@
 ﻿{
   "ArchiveProcessorConfig": {
-    "AutoTimerIntervalEnabled": "true",
     "ArchiveOnStartup": "true",
     "DelayArchiveInSecondsOnstartUp": 1,
     "AutoTimerArchiveIntervalMin": 1,

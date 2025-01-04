@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29411.138
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35617.110
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{0EFE1FD9-32B9-4246-95B2-7CBE38B8A211}"
 	ProjectSection(SolutionItems) = preProject
@@ -20,8 +20,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		version.props = version.props
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNet.LogFilesMonitorArchiver", "src\DotNet.LogFilesMonitorArchiver\DotNet.LogFilesMonitorArchiver.csproj", "{E6482542-E26F-46FD-BC6C-CFF4F57828A3}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LogFilesMonitorArchiver.Test", "test\LogFilesMonitorArchiver.Test\LogFilesMonitorArchiver.Test.csproj", "{83091E3E-4486-4F2E-98D0-5EB3F61F2766}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNet.Host.LogFilesMonitorArchiver", "src\DotNet.Host.LogFilesMonitorArchiver\DotNet.Host.LogFilesMonitorArchiver.csproj", "{6666F25E-872A-4588-962B-FD011763C674}"
@@ -32,10 +30,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{E6482542-E26F-46FD-BC6C-CFF4F57828A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E6482542-E26F-46FD-BC6C-CFF4F57828A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E6482542-E26F-46FD-BC6C-CFF4F57828A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E6482542-E26F-46FD-BC6C-CFF4F57828A3}.Release|Any CPU.Build.0 = Release|Any CPU
 		{83091E3E-4486-4F2E-98D0-5EB3F61F2766}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{83091E3E-4486-4F2E-98D0-5EB3F61F2766}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{83091E3E-4486-4F2E-98D0-5EB3F61F2766}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -49,7 +43,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{E6482542-E26F-46FD-BC6C-CFF4F57828A3} = {0EFE1FD9-32B9-4246-95B2-7CBE38B8A211}
 		{6666F25E-872A-4588-962B-FD011763C674} = {0EFE1FD9-32B9-4246-95B2-7CBE38B8A211}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution

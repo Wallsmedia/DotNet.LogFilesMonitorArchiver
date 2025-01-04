@@ -16,7 +16,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\DotNet.Host.LogFilesMonitorArchiver\DotNet.Host.LogFilesMonitorArchiver.csproj" />
-    <ProjectReference Include="..\..\src\DotNet.LogFilesMonitorArchiver\DotNet.LogFilesMonitorArchiver.csproj" />
   </ItemGroup>
 
   <ItemGroup>
