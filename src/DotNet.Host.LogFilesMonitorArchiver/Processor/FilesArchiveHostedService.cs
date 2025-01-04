@@ -21,6 +21,7 @@ public class FilesArchiveHostedService : IHostedService, IDisposable
 {
     private bool disposedValue = false; // To detect redundant calls
     private readonly ILogger<FilesArchiveHostedService> logger;
+    private readonly List<string> allNames = new() { "*" };
 
     /// <summary>
     /// The interval timer for repeated actions.
@@ -57,7 +58,6 @@ public class FilesArchiveHostedService : IHostedService, IDisposable
     /// <param name="cancellationToken">Indicates that the start process has been aborted.</param>
     public Task StartAsync(CancellationToken cancellationToken = default)
     {
-
         if (CancellationTokenSource != null)
         {
             logger.LogWarning("[FilesArchiveHostedService] - Already Started.");
@@ -125,14 +125,31 @@ public class FilesArchiveHostedService : IHostedService, IDisposable
                     DateTime markerTime = archiveRule.UseUtcTime ? DateTime.UtcNow : DateTime.Now;
                     string inputDirectory = archiveRule.SourcePath;
                     string archiveDirectory = archiveRule.ArchivePath;
-                    foreach (var monitoringName in archiveRule.MonitoringNames)
+                    var monitoringNames = archiveRule.MonitoringNames;
+
+                    if (monitoringNames.Count == 0)
+                    {
+                        monitoringNames = allNames;
+                    }
+
+                    foreach (var monitoringName in monitoringNames)
                     {
                         string searchTemplate = monitoringName;
 
-                        List<(string, string)> fileTuples = GetFilesOlderThanDays(archiveRule.UseUtcTime, markerTime, archiveRule.MoveToArchiveOlderThanDays, inputDirectory, searchTemplate);
-                        MoveFiles(fileTuples, archiveDirectory);
-                        fileTuples = GetFilesAboveTheNumber(archiveRule.MoveToArchiveAfterReachingFiles, inputDirectory, searchTemplate);
-                        MoveFiles(fileTuples, archiveDirectory);
+                        if (archiveRule.MonitoringMode == MonitoringMode.FilesOnly)
+                        {
+                            List<(string, string)> fileTuples = GetFilesOlderThanDays(archiveRule.UseUtcTime, markerTime, archiveRule.MoveToArchiveOlderThanDays, inputDirectory, searchTemplate);
+                            MoveFiles(fileTuples, archiveDirectory);
+                            fileTuples = GetFilesAboveTheNumber(archiveRule.MoveToArchiveAfterReachingNumber, inputDirectory, searchTemplate);
+                            MoveFiles(fileTuples, archiveDirectory);
+                        }
+                        else if (archiveRule.MonitoringMode == MonitoringMode.SubdirectoriesOnly)
+                        {
+                            List<(string, string)> dirTuples = GetDirectoriesOlderThanDays(archiveRule.UseUtcTime, markerTime, archiveRule.MoveToArchiveOlderThanDays, inputDirectory, searchTemplate);
+                            MoveDirectories(dirTuples, archiveDirectory);
+                            dirTuples = GetDirectoriesAboveTheNumber(archiveRule.MoveToArchiveAfterReachingNumber, inputDirectory, searchTemplate);
+                            MoveDirectories(dirTuples, archiveDirectory);
+                        }
                     }
                 }
             }
@@ -142,15 +159,34 @@ public class FilesArchiveHostedService : IHostedService, IDisposable
                 {
                     DateTime markerTime = archiveRule.UseUtcTime ? DateTime.UtcNow : DateTime.Now;
                     string archiveDirectory = archiveRule.ArchivePath;
-                    foreach (var monitoringName in archiveRule.MonitoringNames)
+                    var monitoringNames = archiveRule.MonitoringNames;
+
+                    if (monitoringNames.Count == 0)
                     {
-                        string searchTemplate = monitoringName;
-                        List<(string, string)> fileTuples = GetFilesOlderThanDays(archiveRule.UseUtcTime, markerTime, archiveRule.DeleteFromArchiveOlderThanDays, archiveDirectory, searchTemplate);
-                        RemoveFiles(fileTuples);
-                        fileTuples = GetFilesAboveTheNumber(archiveRule.DeleteFromArchiveAfterReachingFiles, archiveDirectory, searchTemplate);
-                        RemoveFiles(fileTuples);
+                        monitoringNames = allNames;
+                    }
+
+                    foreach (var monitoringName in monitoringNames)
+                    {
+                        if (archiveRule.MonitoringMode == MonitoringMode.FilesOnly)
+                        {
+                            string searchTemplate = monitoringName;
+                            List<(string, string)> fileTuples = GetFilesOlderThanDays(archiveRule.UseUtcTime, markerTime, archiveRule.DeleteFromArchiveOlderThanDays, archiveDirectory, searchTemplate);
+                            RemoveFiles(fileTuples);
+                            fileTuples = GetFilesAboveTheNumber(archiveRule.DeleteFromArchiveAfterReachingNumber, archiveDirectory, searchTemplate);
+                            RemoveFiles(fileTuples);
+                        }
+                        else if (archiveRule.MonitoringMode == MonitoringMode.SubdirectoriesOnly)
+                        {
+                            string searchTemplate = monitoringName;
+                            List<(string, string)> dirTuples = GetDirectoriesOlderThanDays(archiveRule.UseUtcTime, markerTime, archiveRule.DeleteFromArchiveOlderThanDays, archiveDirectory, searchTemplate);
+                            RemoveDirectories(dirTuples);
+                            dirTuples = GetDirectoriesAboveTheNumber(archiveRule.DeleteFromArchiveAfterReachingNumber, archiveDirectory, searchTemplate);
+                            RemoveDirectories(dirTuples);
+                        }
                     }
                 }
+
             }
             actionMessage.MarkComplete();
         }
@@ -194,6 +230,39 @@ public class FilesArchiveHostedService : IHostedService, IDisposable
     }
 
     /// <summary>
+    /// Returns the list of directories that older than exact date.
+    /// </summary>
+    /// <param name="useUtcTime">Use UTC time.</param>
+    /// <param name="markerTime">The mark time to count from.</param>
+    /// <param name="ageInDays">The number of days older than.</param>
+    /// <param name="path">The directory to scan.</param>
+    /// <param name="searchPattern">The filename template, search pattern.</param>
+    /// <returns></returns>
+    List<(string, string)> GetDirectoriesOlderThanDays(bool useUtcTime, DateTime markerTime, int ageInDays, string path, string searchPattern)
+    {
+        List<(string, string)> result = new List<(string, string)>();
+        try
+        {
+            DateTime latestDateTime = markerTime - TimeSpan.FromDays(ageInDays);
+            if (Directory.Exists(path))
+            {
+                DirectoryInfo dirInfo = Directory.CreateDirectory(path);
+                DirectoryInfo[] directories = dirInfo.GetDirectories(searchPattern, SearchOption.TopDirectoryOnly);
+                foreach (var directory in directories)
+                {
+                    var time = useUtcTime ? directory.LastWriteTimeUtc : directory.LastWriteTime;
+                    if (time <= latestDateTime)
+                    {
+                        result.Add((path, directory.Name));
+                    }
+                }
+            }
+        }
+        catch { }
+        return result;
+    }
+
+    /// <summary>
     /// Returns the list of files which is sequence number is greater than maxTotal.
     /// </summary>
     /// <param name="maxTotal">The limit number of files in the directory.</param>
@@ -221,6 +290,33 @@ public class FilesArchiveHostedService : IHostedService, IDisposable
     }
 
     /// <summary>
+    /// Returns the list of directories which is sequence number is greater than maxTotal.
+    /// </summary>
+    /// <param name="maxTotal">The limit number of files in the directory.</param>
+    /// <param name="path">The directory to scan.</param>
+    /// <param name="searchPattern">The filename template, search pattern.</param>
+    /// <returns></returns>
+    List<(string, string)> GetDirectoriesAboveTheNumber(int maxTotal, string path, string searchPattern)
+    {
+        List<(string, string)> result = new List<(string, string)>();
+        try
+        {
+            if (Directory.Exists(path))
+            {
+                DirectoryInfo dirInfo = Directory.CreateDirectory(path);
+                DirectoryInfo[] directories = dirInfo.GetDirectories(searchPattern, SearchOption.TopDirectoryOnly);
+                directories = directories.OrderByDescending(file => file.LastWriteTime).ToArray();
+                for (int i = maxTotal; i < directories.Length; i++)
+                {
+                    result.Add((path, directories[i].Name));
+                }
+            }
+        }
+        catch { }
+        return result;
+    }
+
+    /// <summary>
     /// Removes the files by the tuple list.
     /// </summary>
     /// <param name="filesToRemove">The list files to remove.</param>
@@ -236,27 +332,122 @@ public class FilesArchiveHostedService : IHostedService, IDisposable
         }
     }
 
+
+    /// <summary>
+    /// Moves directories in the source list to the destination folder.
+    /// </summary>
+    /// <param name="directoriesToMove">The list of directories to move.</param>
+    /// <param name="destinationPath">The destination path.</param>
+    void MoveDirectories(List<(string, string)> directoriesToMove, string destinationPath)
+    {
+        foreach (var tDir in directoriesToMove)
+        {
+            try
+            {
+                var source = Path.Combine(tDir.Item1, tDir.Item2);
+                var target = Path.Combine(destinationPath, tDir.Item2);
+                MoveDirectory(source, target);
+            }
+            catch { }
+        }
+    }
+
+    /// <summary>
+    /// Removes directories in the source list.
+    /// </summary>
+    /// <param name="directoriesToMove">The list of directories.</param>
+    void RemoveDirectories(List<(string, string)> directoriesToMove)
+    {
+        foreach (var tDir in directoriesToMove)
+        {
+            try
+            {
+                var source = Path.Combine(tDir.Item1, tDir.Item2);
+                RemoveDirectory(source);
+            }
+            catch { }
+        }
+    }
+    record Folder(string Source, string Target);
+
+
+    /// <summary>
+    /// Removes directory and all files in it.
+    /// </summary>
+    /// <param name="source">The source path.</param>
+    /// <param name="target">The target path.</param>
+    public void RemoveDirectory(string source)
+    {
+        var stack = new Stack<string>();
+        stack.Push(source);
+        while (stack.Count > 0)
+        {
+            var currentFolder = stack.Pop();
+
+            foreach (var file in Directory.GetFiles(currentFolder, "*.*"))
+            {
+                File.Delete(file);
+            }
+            foreach (var directory in Directory.GetDirectories(currentFolder))
+            {
+                stack.Push(Path.Combine(currentFolder, Path.GetFileName(directory)));
+            }
+        }
+        Directory.Delete(source, true);
+    }
+
+    /// <summary>
+    /// Moves directory and all files in it.
+    /// </summary>
+    /// <param name="source">The source path.</param>
+    /// <param name="target">The target path.</param>
+    public void MoveDirectory(string source, string target)
+    {
+        var stack = new Stack<Folder>();
+        stack.Push(new Folder(source, target));
+        while (stack.Count > 0)
+        {
+            var currentFolder = stack.Pop();
+            Directory.CreateDirectory(currentFolder.Target);
+            foreach (var file in Directory.GetFiles(currentFolder.Source, "*.*"))
+            {
+                string targetFile = Path.Combine(currentFolder.Target, Path.GetFileName(file));
+                if (File.Exists(targetFile))
+                {
+                    File.Delete(targetFile);
+                }
+
+                File.Move(file, targetFile);
+            }
+            foreach (var directory in Directory.GetDirectories(currentFolder.Source))
+            {
+                stack.Push(new Folder(directory, Path.Combine(currentFolder.Target, Path.GetFileName(directory))));
+            }
+        }
+        Directory.Delete(source, true);
+    }
+
     /// <summary>
     /// Moves files in the source list to the destination folder.
     /// </summary>
     /// <param name="filesToMove">The list of files to move.</param>
-    /// <param name="destinatioPath">The destination path.</param>
-    void MoveFiles(List<(string, string)> filesToMove, string destinatioPath)
+    /// <param name="destinationPath">The destination path.</param>
+    void MoveFiles(List<(string, string)> filesToMove, string destinationPath)
     {
         try
         {
-            CreateDirectory(destinatioPath);
-            foreach (var tfile in filesToMove)
+            CreateDirectory(destinationPath);
+            foreach (var tFile in filesToMove)
             {
                 try
                 {
-                    string newFileName = tfile.Item2;
+                    string newFileName = tFile.Item2;
                     string newFileNameWithoutExtension = Path.GetFileNameWithoutExtension(newFileName);
                     string extension = Path.GetExtension(newFileName);
                     int maxFileCopies = 100000;
                     for (int i = 1; i < maxFileCopies; ++i)
                     {
-                        var fi = new FileInfo(Path.Combine(destinatioPath, newFileName));
+                        var fi = new FileInfo(Path.Combine(destinationPath, newFileName));
                         if (!fi.Exists)
                         {
                             break;
@@ -267,7 +458,7 @@ public class FilesArchiveHostedService : IHostedService, IDisposable
                         }
                         newFileName = $"{newFileNameWithoutExtension}.{i}{extension}";
                     }
-                    File.Move(Path.Combine(tfile.Item1, tfile.Item2), Path.Combine(destinatioPath, newFileName));
+                    File.Move(Path.Combine(tFile.Item1, tFile.Item2), Path.Combine(destinationPath, newFileName));
                 }
                 catch { }
             }

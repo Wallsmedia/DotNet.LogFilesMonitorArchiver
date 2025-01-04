@@ -50,9 +50,9 @@ Example of the configuration section:
       "ArchivePath": "\\Logs\\AppExampleLogSource\\Stat\\Archive",
       "MonitoringNames": [ "archive-able_*.xml", "*.csv" ],
       "MoveToArchiveOlderThanDays": 14,
-      "MoveToArchiveAfterReachingFiles": 28,
+      "MoveToArchiveAfterReachingNumbers": 28,
       "DeleteFromArchiveOlderThanDays": 180,
-      "DeleteFromArchiveAfterReachingFiles": 1000
+      "DeleteFromArchiveAfterReachingNumbers": 1000
     },
     {
       "UseUtcTime":"false",

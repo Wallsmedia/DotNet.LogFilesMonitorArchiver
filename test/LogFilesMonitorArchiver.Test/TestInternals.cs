@@ -8,42 +8,48 @@ using Microsoft.Extensions.Configuration;
 using System.Reflection;
 using System.IO;
 using DotNet.Host.LogFilesMonitorArchiver.Config;
+using System.Collections.Generic;
 
 namespace LogFilesMonitorArchiver.Test;
 
 public static class TestInternals
 {
-    public static void VerifySourceDeletedOlderByDate(ArchiveProcessorConfig config, DateTime markerTime)
-    {
-        foreach (var rule in config.ArchiveRules)
-        {
-            DateTime lastestDateTime = markerTime - TimeSpan.FromDays(rule.DeleteFromArchiveOlderThanDays);
-            var dirInfo = Directory.CreateDirectory(rule.SourcePath);
-            foreach (var searchPattern in rule.MonitoringNames)
-            {
-                FileInfo[] files = dirInfo.GetFiles(searchPattern, SearchOption.TopDirectoryOnly);
-                foreach (var file in files)
-                {
-                    var time = rule.UseUtcTime ? file.LastWriteTimeUtc : file.LastWriteTime;
-                    Assert.IsTrue(time > lastestDateTime, $"File was not archived : {file.Name}");
-                }
-            }
-        }
-    }
-
     public static void VerifySourceOlderByDate(ArchiveProcessorConfig config, DateTime markerTime)
     {
         foreach (var rule in config.ArchiveRules)
         {
-            DateTime lastestDateTime = markerTime - TimeSpan.FromDays(rule.MoveToArchiveOlderThanDays);
+            DateTime latestDateTime = markerTime - TimeSpan.FromDays(rule.DeleteFromArchiveOlderThanDays);
             var dirInfo = Directory.CreateDirectory(rule.SourcePath);
-            foreach (var searchPattern in rule.MonitoringNames)
+            var monitoringNames = rule.MonitoringNames;
+
+            if (monitoringNames.Count == 0)
             {
-                FileInfo[] files = dirInfo.GetFiles(searchPattern, SearchOption.TopDirectoryOnly);
-                foreach (var file in files)
+                monitoringNames = new() { "*" };
+            }
+
+            if (rule.MonitoringMode == MonitoringMode.FilesOnly)
+            {
+                foreach (var searchPattern in monitoringNames)
                 {
-                    var time = rule.UseUtcTime ? file.LastWriteTimeUtc : file.LastWriteTime;
-                    Assert.IsTrue(time > lastestDateTime, $"File was not archived : {file.Name}");
+                    FileInfo[] files = dirInfo.GetFiles(searchPattern, SearchOption.TopDirectoryOnly);
+                    foreach (var file in files)
+                    {
+                        var time = rule.UseUtcTime ? file.LastWriteTimeUtc : file.LastWriteTime;
+                        Assert.IsTrue(time > latestDateTime, $"File was not archived : {file.Name}");
+                    }
+                }
+            }
+            else
+            if (rule.MonitoringMode == MonitoringMode.SubdirectoriesOnly)
+            {
+                foreach (var searchPattern in monitoringNames)
+                {
+                    var dirs = dirInfo.GetDirectories(searchPattern, SearchOption.TopDirectoryOnly);
+                    foreach (var dir in dirs)
+                    {
+                        var time = rule.UseUtcTime ? dir.LastWriteTimeUtc : dir.LastWriteTime;
+                        Assert.IsTrue(time > latestDateTime, $"Directory was not archived : {dir.Name}");
+                    }
                 }
             }
         }
@@ -54,10 +60,28 @@ public static class TestInternals
         foreach (var rule in config.ArchiveRules)
         {
             var dirInfo = Directory.CreateDirectory(rule.SourcePath);
-            foreach (var searchPattern in rule.MonitoringNames)
+
+            var monitoringNames = rule.MonitoringNames;
+            if (monitoringNames.Count == 0)
             {
-                FileInfo[] files = dirInfo.GetFiles(searchPattern, SearchOption.TopDirectoryOnly);
-                Assert.IsTrue(files.Length <= rule.MoveToArchiveAfterReachingFiles, $"File number breach the limit {files.Length} : {rule.MoveToArchiveAfterReachingFiles}");
+                monitoringNames = new() { "*" };
+            }
+
+            if (rule.MonitoringMode == MonitoringMode.FilesOnly)
+            {
+                foreach (var searchPattern in monitoringNames)
+                {
+                    FileInfo[] files = dirInfo.GetFiles(searchPattern, SearchOption.TopDirectoryOnly);
+                    Assert.IsTrue(files.Length <= rule.MoveToArchiveAfterReachingNumber, $"File number breach the limit {files.Length} : {rule.MoveToArchiveAfterReachingNumber}");
+                }
+            }
+            else if (rule.MonitoringMode == MonitoringMode.SubdirectoriesOnly)
+            {
+                foreach (var searchPattern in monitoringNames)
+                {
+                    var dirs = dirInfo.GetDirectories(searchPattern, SearchOption.TopDirectoryOnly);
+                    Assert.IsTrue(dirs.Length <= rule.MoveToArchiveAfterReachingNumber, $"Directory number breach the limit {dirs.Length} : {rule.MoveToArchiveAfterReachingNumber}");
+                }
             }
         }
     }
@@ -67,10 +91,68 @@ public static class TestInternals
         foreach (var rule in config.ArchiveRules)
         {
             var dirInfo = Directory.CreateDirectory(rule.ArchivePath);
-            foreach (var searchPattern in rule.MonitoringNames)
+
+            var monitoringNames = rule.MonitoringNames;
+            if (monitoringNames.Count == 0)
             {
-                FileInfo[] files = dirInfo.GetFiles(searchPattern, SearchOption.TopDirectoryOnly);
-                Assert.IsTrue(files.Length <= rule.DeleteFromArchiveAfterReachingFiles, $"File number breach the limit {files.Length} : {rule.DeleteFromArchiveAfterReachingFiles}");
+                monitoringNames = new() { "*" };
+            }
+
+            if (rule.MonitoringMode == MonitoringMode.FilesOnly)
+            {
+                foreach (var searchPattern in monitoringNames)
+                {
+                    FileInfo[] files = dirInfo.GetFiles(searchPattern, SearchOption.TopDirectoryOnly);
+                    Assert.IsTrue(files.Length <= rule.DeleteFromArchiveAfterReachingNumber, $"File number breach the limit {files.Length} : {rule.DeleteFromArchiveAfterReachingNumber}");
+                }
+            }
+            else if (rule.MonitoringMode == MonitoringMode.SubdirectoriesOnly)
+            {
+                foreach (var searchPattern in monitoringNames)
+                {
+                    var dirs = dirInfo.GetDirectories(searchPattern, SearchOption.TopDirectoryOnly);
+                    Assert.IsTrue(dirs.Length <= rule.DeleteFromArchiveAfterReachingNumber, $"Directory number breach the limit {dirs.Length} : {rule.MoveToArchiveAfterReachingNumber}");
+                }
+            }
+        }
+    }
+
+    public static void VerifyArchiveOlderByDate(ArchiveProcessorConfig config, DateTime markerTime)
+    {
+        foreach (var rule in config.ArchiveRules)
+        {
+            DateTime latestDateTime = markerTime - TimeSpan.FromDays(rule.MoveToArchiveOlderThanDays);
+            var dirInfo = Directory.CreateDirectory(rule.ArchivePath);
+
+            var monitoringNames = rule.MonitoringNames;
+            if (monitoringNames.Count == 0)
+            {
+                monitoringNames = new() { "*" };
+            }
+
+            if (rule.MonitoringMode == MonitoringMode.FilesOnly)
+            {
+                foreach (var searchPattern in monitoringNames)
+                {
+                    FileInfo[] files = dirInfo.GetFiles(searchPattern, SearchOption.TopDirectoryOnly);
+                    foreach (var file in files)
+                    {
+                        var time = rule.UseUtcTime ? file.LastWriteTimeUtc : file.LastWriteTime;
+                        Assert.IsTrue(time <= latestDateTime, $"File should not be archived : {file.Name}");
+                    }
+                }
+            }
+            else if (rule.MonitoringMode == MonitoringMode.SubdirectoriesOnly)
+            {
+                foreach (var searchPattern in monitoringNames)
+                {
+                    var dirs = dirInfo.GetDirectories(searchPattern, SearchOption.TopDirectoryOnly);
+                    foreach (var dir in dirs)
+                    {
+                        var time = rule.UseUtcTime ? dir.LastWriteTimeUtc : dir.LastWriteTime;
+                        Assert.IsTrue(time <= latestDateTime, $"Directory should not be archived : {dir.Name}");
+                    }
+                }
             }
         }
     }
@@ -79,29 +161,54 @@ public static class TestInternals
     {
         foreach (var rule in config.ArchiveRules)
         {
-            string src = rule.SourcePath;
-            if (!Directory.Exists(src))
-            {
-                Directory.CreateDirectory(src);
-            }
-            for (int i = 0; i < number; i++)
-            {
-                string name = string.Format(pattern, i);
-                name = Path.Combine(src, name);
+            string sourcePath = rule.SourcePath;
+            CreateDirectory(sourcePath);
 
-                using (var writer = File.CreateText(name))
+            if (rule.MonitoringMode == MonitoringMode.FilesOnly)
+            {
+                GenerateFilesInFolder(pattern, number, time, rule, sourcePath);
+            }
+            else if (rule.MonitoringMode == MonitoringMode.SubdirectoriesOnly)
+            {
+                for (int i = 0; i < number; i++)
                 {
-                    writer.WriteLine($"Test file {name} : Date {time}");
+                    string name = string.Format(pattern, i);
+                    name = Path.GetFileNameWithoutExtension(name);
+                    var subFolder = Path.Combine(sourcePath, name);
+                    CreateDirectory(subFolder);
+                    GenerateFilesInFolder(pattern, number, time, rule, subFolder);
                 }
-                FileInfo file = new FileInfo(name);
-                if (rule.UseUtcTime)
-                {
-                    file.LastWriteTimeUtc = time;
-                }
-                else
-                {
-                    file.LastWriteTime = time;
-                }
+            }
+        }
+    }
+
+    public static void CreateDirectory(string directoryPath)
+    {
+        if (!Directory.Exists(directoryPath))
+        {
+            Directory.CreateDirectory(directoryPath);
+        }
+    }
+
+    private static void GenerateFilesInFolder(string pattern, int number, DateTime time, ArchiveRule rule, string sourcePath)
+    {
+        for (int i = 0; i < number; i++)
+        {
+            string name = string.Format(pattern, i);
+            name = Path.Combine(sourcePath, name);
+
+            using (var writer = File.CreateText(name))
+            {
+                writer.WriteLine($"Test file {name} : Date {time}");
+            }
+            FileInfo file = new FileInfo(name);
+            if (rule.UseUtcTime)
+            {
+                file.LastWriteTimeUtc = time;
+            }
+            else
+            {
+                file.LastWriteTime = time;
             }
         }
     }
@@ -115,12 +222,32 @@ public static class TestInternals
             string archive = rule.ArchivePath;
             if (Directory.Exists(src))
             {
-                Directory.Delete(src, true);
+                RemoveDirectory(src);
             }
             if (Directory.Exists(archive))
             {
-                Directory.Delete(archive, true);
+                RemoveDirectory(archive);
             }
+        }
+
+        void RemoveDirectory(string source)
+        {
+            var stack = new Stack<string>();
+            stack.Push(source);
+            while (stack.Count > 0)
+            {
+                var currentFolder = stack.Pop();
+
+                foreach (var file in Directory.GetFiles(currentFolder, "*.*"))
+                {
+                    File.Delete(file);
+                }
+                foreach (var directory in Directory.GetDirectories(currentFolder))
+                {
+                    stack.Push(Path.Combine(currentFolder, Path.GetFileName(directory)));
+                }
+            }
+            Directory.Delete(source, true);
         }
     }
     public static ArchiveProcessorConfig LoadConfiguration(string name)
@@ -130,8 +257,8 @@ public static class TestInternals
         path = Path.Combine(path, name);
         var build = new ConfigurationBuilder().AddJsonFile(path, false);
         var cfg = build.Build();
-        var achiveConfig = cfg.GetSection(nameof(ArchiveProcessorConfig));
-        config = achiveConfig.Get<ArchiveProcessorConfig>();
+        var archiveConfig = cfg.GetSection(nameof(ArchiveProcessorConfig));
+        config = archiveConfig.Get<ArchiveProcessorConfig>();
 
         path = GetBasePath();
         foreach (var rule in config.ArchiveRules)
@@ -142,23 +269,7 @@ public static class TestInternals
         return config;
     }
 
-    public static void VerifyArchiveOlderByDate(ArchiveProcessorConfig config, DateTime markerTime)
-    {
-        foreach (var rule in config.ArchiveRules)
-        {
-            DateTime lastestDateTime = markerTime - TimeSpan.FromDays(rule.MoveToArchiveOlderThanDays);
-            var dirInfo = Directory.CreateDirectory(rule.ArchivePath);
-            foreach (var searchPattern in rule.MonitoringNames)
-            {
-                FileInfo[] files = dirInfo.GetFiles(searchPattern, SearchOption.TopDirectoryOnly);
-                foreach (var file in files)
-                {
-                    var time = rule.UseUtcTime ? file.LastWriteTimeUtc : file.LastWriteTime;
-                    Assert.IsTrue(time <= lastestDateTime, $"File should not be archived : {file.Name}");
-                }
-            }
-        }
-    }
+
 
 
 

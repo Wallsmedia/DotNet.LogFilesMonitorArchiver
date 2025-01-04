@@ -29,10 +29,10 @@ public class TestArchiveFiles
 
         TestInternals.FillTestFiles(config, "archive-able_0{0}.xml", 2, time);
         time = time - TimeSpan.FromHours(12);
-        TestInternals.FillTestFiles(config, "archive-able_1{0}.xml", config.ArchiveRules[0].MoveToArchiveAfterReachingFiles, time);
+        TestInternals.FillTestFiles(config, "archive-able_1{0}.xml", config.ArchiveRules[0].MoveToArchiveAfterReachingNumber, time);
 
         time = markerTime - TimeSpan.FromDays(config.ArchiveRules[0].MoveToArchiveOlderThanDays);
-        TestInternals.FillTestFiles(config, "archive-able_2{0}.xml", config.ArchiveRules[0].DeleteFromArchiveAfterReachingFiles, time);
+        TestInternals.FillTestFiles(config, "archive-able_2{0}.xml", config.ArchiveRules[0].DeleteFromArchiveAfterReachingNumber, time);
 
         time = time - TimeSpan.FromDays(1);
         TestInternals.FillTestFiles(config, "archive-able_3{0}.xml", 2, time);
@@ -50,10 +50,8 @@ public class TestArchiveFiles
         TestInternals.VerifySourceOlderByDate(config, markerTime);
         TestInternals.VerifySourceByNumber(config);
         TestInternals.VerifyArchiveByNumber(config);
-        TestInternals.VerifySourceDeletedOlderByDate(config, markerTime);
+        TestInternals.VerifySourceOlderByDate(config, markerTime);
     }
-
-
 
     [TestMethod]
     public void Test_MoveToAchieveAndDeleteByDateAndNumberAutoOneMinManual()
@@ -68,10 +66,10 @@ public class TestArchiveFiles
 
         TestInternals.FillTestFiles(config, "archive-able_0{0}.xml", 2, time);
         time = time - TimeSpan.FromHours(12);
-        TestInternals.FillTestFiles(config, "archive-able_1{0}.xml", config.ArchiveRules[0].MoveToArchiveAfterReachingFiles, time);
+        TestInternals.FillTestFiles(config, "archive-able_1{0}.xml", config.ArchiveRules[0].MoveToArchiveAfterReachingNumber, time);
 
         time = markerTime - TimeSpan.FromDays(config.ArchiveRules[0].MoveToArchiveOlderThanDays);
-        TestInternals.FillTestFiles(config, "archive-able_2{0}.xml", config.ArchiveRules[0].DeleteFromArchiveAfterReachingFiles, time);
+        TestInternals.FillTestFiles(config, "archive-able_2{0}.xml", config.ArchiveRules[0].DeleteFromArchiveAfterReachingNumber, time);
 
         time = time - TimeSpan.FromDays(1);
         TestInternals.FillTestFiles(config, "archive-able_3{0}.xml", 2, time);
@@ -92,7 +90,7 @@ public class TestArchiveFiles
         TestInternals.VerifySourceOlderByDate(config, markerTime);
         TestInternals.VerifySourceByNumber(config);
         TestInternals.VerifyArchiveByNumber(config);
-        TestInternals.VerifySourceDeletedOlderByDate(config, markerTime);
+        TestInternals.VerifySourceOlderByDate(config, markerTime);
 
         task = farp.StopAsync();
         res = task.Wait(TimeSpan.FromSeconds(10));
