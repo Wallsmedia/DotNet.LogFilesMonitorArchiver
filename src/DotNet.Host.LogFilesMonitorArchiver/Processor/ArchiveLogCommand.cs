@@ -26,7 +26,13 @@ public class ArchiveCommand
     /// </summary>
     public enum ArchiveAction
     {
+        /// <summary>
+        /// Defines action: move to archive
+        /// </summary>
         MoveToArchive,
+        /// <summary>
+        /// Defines action: delete from archive
+        /// </summary>
         DeleteFromArchive
     }
 

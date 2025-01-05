@@ -2,7 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Log elements monitor and archiver
 
+using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 
 namespace DotNet.Host.LogFilesMonitorArchiver.Config;
 
@@ -62,5 +64,21 @@ public class ArchiveRule
     /// Files sorted by name and grouped by date.
     /// </summary>
     public int DeleteFromArchiveAfterReachingNumber { get; set; } = int.MaxValue;
+
+
+    /// <summary>
+    /// Gets or sets the number of files. All above that will be moved  into archive.
+    /// Files sorted by name and grouped by date.
+    /// </summary>
+    [Obsolete("Use property MoveToArchiveAfterReachingNumber", true)]
+    public int MoveToArchiveAfterReachingFiles { get => MoveToArchiveAfterReachingNumber; set => MoveToArchiveAfterReachingNumber = value; }
+
+
+    /// <summary>
+    /// Gets or sets the number of files. All above that will be deleted  from archive.
+    /// Files sorted by name and grouped by date.
+    /// </summary>
+    [Obsolete("Use property DeleteFromArchiveAfterReachingNumber", true)]
+    public int DeleteFromArchiveAfterReachingFiles { get => DeleteFromArchiveAfterReachingNumber; set => DeleteFromArchiveAfterReachingNumber = value; } 
 
 }

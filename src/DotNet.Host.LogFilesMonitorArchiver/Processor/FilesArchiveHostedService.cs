@@ -375,7 +375,6 @@ public class FilesArchiveHostedService : IHostedService, IDisposable
     /// Removes directory and all files in it.
     /// </summary>
     /// <param name="source">The source path.</param>
-    /// <param name="target">The target path.</param>
     public void RemoveDirectory(string source)
     {
         var stack = new Stack<string>();

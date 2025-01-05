@@ -6,8 +6,14 @@ They become outdated and should be deleted by the dedicated period of time, like
 It keeps file directories in tidy state by the rules.
 
 
-#### Version 9.0.0
+#### Version 9.0.0 and version 8.1.0
 - Add support of .Net 9.x
+- Obsolete "MoveToArchiveAfterReachingFiles" replaced with MoveToArchiveAfterReachingNumber
+- Obsolete "DeleteFromArchiveAfterReachingFiles" replaced with DeleteFromArchiveAfterReachingNumber
+- Add MonitoringMode:
+    - FilesOnly 
+    - SubdirectoriesOnly
+- Property AutoTimerIntervalEnabled is not supported, Auto Timer Interval always on.
 
 
 **ASP.NET Core WebHost and Host edition of ".NET Core Logging Files Monitor and Archiver":**
@@ -40,7 +46,6 @@ Example of the configuration section:
 {
 
  "ArchiveProcessorConfig": {
-   "AutoTimerIntervalEnabled": "true",
    "ArchiveOnStartup": "true",
    "DelayArchiveInSecondsOnstartUp": 1, 
    "AutoTimerArchiveIntervalMin": 720,
@@ -64,7 +69,6 @@ Example of the configuration section:
     }
   ]
  }
-
 }
 ```
 
