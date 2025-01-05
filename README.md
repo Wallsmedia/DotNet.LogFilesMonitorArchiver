@@ -6,7 +6,7 @@ They become outdated and should be deleted by the dedicated period of time, like
 It keeps file directories in tidy state by the rules.
 
 
-#### Version 9.0.0 and version 8.1.0
+#### Version 9.0.0
 - Add support of .Net 9.x
 - Obsolete "MoveToArchiveAfterReachingFiles" replaced with MoveToArchiveAfterReachingNumber
 - Obsolete "DeleteFromArchiveAfterReachingFiles" replaced with DeleteFromArchiveAfterReachingNumber
@@ -28,11 +28,11 @@ The "DotNet.LogFilesMonitorArchiver" package allows to implement  the following 
 
 2. For each matched file name in the "**SourcePath**" directory apply the rules:
 - Move it into the archive directory "**ArchivePath**" if the file created date is older than configured "**MoveToArchiveOlderThanDays**" days (default value 7).
-- Move it into the archive directory "**ArchivePath**" if the number of files is greater than configured "**MoveToArchiveAfterReachingFiles**" number S(default value is int.MaxValue).
+- Move it into the archive directory "**ArchivePath**" if the number of files is greater than configured "**MoveToArchiveAfterReachingNumber**" number S(default value is int.MaxValue).
 
 3. For each matched file name in the "**ArchivePath**" directory apply the rules: 
 - Delete it from the archive directory "**ArchivePath**" if the file created date is older than configured "**DeleteFromArchiveOlderThanDays**" days (default value 30).
-- Delete it from the archive directory "**ArchivePath**" if the number of files is greater than configured "**DeleteFromArchiveAfterReachingFiles**" number (default value is int.MaxValue).
+- Delete it from the archive directory "**ArchivePath**" if the number of files is greater than configured "**DeleteFromArchiveAfterReachingNumber**" number (default value is int.MaxValue).
 
 
 ## Hosted via IHostedService
@@ -55,9 +55,9 @@ Example of the configuration section:
       "ArchivePath": "\\Logs\\AppExampleLogSource\\Stat\\Archive",
       "MonitoringNames": [ "archive-able_*.xml", "*.csv" ],
       "MoveToArchiveOlderThanDays": 14,
-      "MoveToArchiveAfterReachingNumbers": 28,
+      "MoveToArchiveAfterReachingNumber": 28,
       "DeleteFromArchiveOlderThanDays": 180,
-      "DeleteFromArchiveAfterReachingNumbers": 1000
+      "DeleteFromArchiveAfterReachingNumber": 1000
     },
     {
       "UseUtcTime":"false",
@@ -66,7 +66,18 @@ Example of the configuration section:
       "MonitoringNames": [ "archive-able_*.xml", "*.trace" ],
       "MoveToArchiveOlderThanDays": 7,
       "DeleteFromArchiveOlderThanDays": 360
+    },
+    {
+     "SourcePath": "LogDirs",
+     "ArchivePath": "DirsArchive",
+     "MonitoringNames": [],
+     "MonitoringMode": 1,
+     "MoveToArchiveOlderThanDays": 2,
+     "MoveToArchiveAfterReachingNumber": 20,
+     "DeleteFromArchiveOlderThanDays": 5,
+     "DeleteFromArchiveAfterReachingNumber": 30
     }
+
   ]
  }
 }
