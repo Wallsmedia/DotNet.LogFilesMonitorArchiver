@@ -17,7 +17,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <DotNetCoreAppVersion>net9.0</DotNetCoreAppVersion>
+    <DotNetCoreAppVersion>net8.0</DotNetCoreAppVersion>
     <DotNetCoreVersions>netstandard2.0;netstandard2.1</DotNetCoreVersions>
   </PropertyGroup>
   
